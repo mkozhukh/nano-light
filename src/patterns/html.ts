@@ -1,18 +1,32 @@
 import type { LanguagePattern } from '../types';
 
 /**
+ * Special patterns for script tag content detection
+ * These are used internally for context switching
+ */
+export const scriptContentPatterns = {
+  // Pattern to find script tag content boundaries
+  scriptTagContent: /<script\b[^>]*>([\s\S]*?)<\/script>/gi,
+  // Pattern to extract just the opening script tag
+  scriptTagOpen: /<script\b[^>]*>/gi,
+  // Pattern to find the closing script tag
+  scriptTagClose: /<\/script>/gi,
+};
+
+/**
  * HTML language patterns for tokenization
  * Ordered by priority - more specific patterns should come first
+ * Phase 4: Enhanced patterns with better edge case handling
  */
 export const htmlPatterns: LanguagePattern[] = [
-  // HTML comments
+  // HTML comments - enhanced to handle edge cases
   {
     name: 'html-comment',
     regex: /<!--[\s\S]*?-->/g,
     type: 'comment',
   },
 
-  // Attribute values (quoted strings)
+  // Attribute values (quoted strings) - must come before tags to be recognized
   {
     name: 'attr-value-double',
     regex: /"[^"]*"/g,
@@ -25,17 +39,30 @@ export const htmlPatterns: LanguagePattern[] = [
     type: 'attr-value',
   },
 
-  // Attribute names (within tags)
+  // Attribute names - must come before tags
   {
     name: 'attr-name',
-    regex: /\b[a-zA-Z-]+(?=\s*=)/g,
+    regex: /\b[a-zA-Z][a-zA-Z0-9:_-]*(?=\s*=)/g,
     type: 'attr-name',
   },
 
-  // HTML tags (opening, closing, self-closing)
+  // Script tags (opening and closing)
   {
-    name: 'html-tag',
-    regex: /<\/?[a-zA-Z][a-zA-Z0-9]*[^>]*>/g,
+    name: 'script-tag-open',
+    regex: /<script\b[^>]*>/gi,
+    type: 'tag',
+  },
+
+  {
+    name: 'script-tag-close',
+    regex: /<\/script>/gi,
+    type: 'tag',
+  },
+
+  // Complete HTML tags (for non-script tags)
+  {
+    name: 'html-tag-complete',
+    regex: /<\/?(?!script\b)[a-zA-Z][a-zA-Z0-9:_-]*(?:\s+[^>]*)?\s*\/?>/gi,
     type: 'tag',
   },
 ];

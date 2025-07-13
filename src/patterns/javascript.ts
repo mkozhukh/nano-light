@@ -64,10 +64,6 @@ export const javascriptPatterns: LanguagePattern[] = [
     type: 'operator',
   },
 
-  // Division operator - placed last to not interfere with comments
-  {
-    name: 'division',
-    regex: /\//g,
-    type: 'operator',
-  },
+  // Division operator - temporarily removed to avoid conflicts with comments
+  // TODO: Add back with proper handling to not interfere with // and /* patterns
 ];

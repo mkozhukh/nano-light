@@ -6,7 +6,7 @@ import type {
 } from './types';
 import { detectLanguage, escapeHtml, wrapToken } from './utils';
 import { javascriptPatterns } from './patterns/javascript';
-import { htmlPatterns } from './patterns/html';
+import { htmlPatterns, scriptContentPatterns } from './patterns/html';
 
 /**
  * Cached compiled patterns to avoid recompilation
@@ -74,20 +74,167 @@ function getCachedRegex(language: Language, patternName: string): RegExp {
 }
 
 /**
- * Tokenize code using language-specific patterns with optimized caching
- * @param code - Source code to tokenize
- * @param language - Language to use for tokenization
+ * Tokenize HTML code with special handling for script tags
+ * This function switches context to JavaScript when inside script tags
+ * @param code - HTML source code to tokenize
  * @returns Array of tokens with position information
  */
-function tokenize(code: string, language: Language): Token[] {
+function tokenizeHtml(code: string): Token[] {
+  const tokens: Token[] = [];
+  const processed = new Set<number>();
+
+  // Step 1: Find and process script tag content areas
+  const scriptContentRegex = new RegExp(
+    scriptContentPatterns.scriptTagContent.source,
+    'gi'
+  );
+  const scriptAreas: Array<{
+    start: number;
+    end: number;
+    content: string;
+    openTagEnd: number;
+    closeTagStart: number;
+  }> = [];
+
+  let scriptMatch: RegExpExecArray | null;
+  while ((scriptMatch = scriptContentRegex.exec(code)) !== null) {
+    const fullMatch = scriptMatch[0];
+    const content = scriptMatch[1];
+    const matchStart = scriptMatch.index;
+    const matchEnd = matchStart + fullMatch.length;
+
+    // Find where the opening tag ends
+    const openTagRegex = new RegExp(
+      scriptContentPatterns.scriptTagOpen.source,
+      'gi'
+    );
+    openTagRegex.lastIndex = matchStart;
+    const openTagMatch = openTagRegex.exec(code);
+    const openTagEnd = openTagMatch
+      ? (openTagMatch.index ?? 0) + openTagMatch[0].length
+      : matchStart;
+
+    // Find where the closing tag starts
+    const closeTagStart = matchEnd - '</script>'.length;
+
+    scriptAreas.push({
+      start: matchStart,
+      end: matchEnd,
+      content,
+      openTagEnd,
+      closeTagStart,
+    });
+
+    // Prevent infinite loops
+    if (scriptContentRegex.lastIndex === scriptMatch.index) {
+      scriptContentRegex.lastIndex++;
+    }
+  }
+
+  // Step 2: Process HTML patterns (comments, script tags, and other HTML tags)
+  for (const pattern of htmlPatterns) {
+    const regex = new RegExp(pattern.regex.source, pattern.regex.flags);
+    let match: RegExpExecArray | null;
+
+    while ((match = regex.exec(code)) !== null) {
+      const start = match.index;
+      const end = start + match[0].length;
+
+      // Skip if this range overlaps with script content (except for script tags themselves)
+      let inScriptContent = false;
+      for (const scriptArea of scriptAreas) {
+        if (start >= scriptArea.openTagEnd && end <= scriptArea.closeTagStart) {
+          inScriptContent = true;
+          break;
+        }
+      }
+
+      if (inScriptContent) {
+        continue;
+      }
+
+      // Skip if this range was already processed
+      let overlap = false;
+      for (let i = start; i < end; i++) {
+        if (processed.has(i)) {
+          overlap = true;
+          break;
+        }
+      }
+
+      if (!overlap) {
+        tokens.push({
+          type: pattern.type,
+          value: match[0],
+          start,
+          end,
+        });
+
+        // Mark this range as processed
+        for (let i = start; i < end; i++) {
+          processed.add(i);
+        }
+      }
+
+      // Prevent infinite loops
+      if (regex.lastIndex === start) {
+        regex.lastIndex++;
+      }
+    }
+  }
+
+  // Step 3: Process JavaScript content inside script tags
+  for (const scriptArea of scriptAreas) {
+    if (scriptArea.content.trim()) {
+      // Tokenize the JavaScript content
+      const jsTokens = tokenizeJavaScript(scriptArea.content);
+
+      // Adjust token positions to be relative to the full HTML document
+      const adjustedTokens = jsTokens.map((token) => ({
+        ...token,
+        start: token.start + scriptArea.openTagEnd,
+        end: token.end + scriptArea.openTagEnd,
+      }));
+
+      // Add the JavaScript tokens
+      for (const token of adjustedTokens) {
+        let overlap = false;
+        for (let i = token.start; i < token.end; i++) {
+          if (processed.has(i)) {
+            overlap = true;
+            break;
+          }
+        }
+
+        if (!overlap) {
+          tokens.push(token);
+          // Mark this range as processed
+          for (let i = token.start; i < token.end; i++) {
+            processed.add(i);
+          }
+        }
+      }
+    }
+  }
+
+  // Sort tokens by start position for proper rendering order
+  return tokens.sort((a, b) => a.start - b.start);
+}
+
+/**
+ * Tokenize JavaScript code using JavaScript patterns
+ * @param code - JavaScript source code to tokenize
+ * @returns Array of tokens with position information
+ */
+function tokenizeJavaScript(code: string): Token[] {
   const patterns = getCompiledPatterns();
-  const languagePatterns = patterns[language];
+  const languagePatterns = patterns.js;
   const tokens: Token[] = [];
   const processed = new Set<number>();
 
   // Process each pattern using cached regex objects
   for (const pattern of languagePatterns) {
-    const regex = getCachedRegex(language, pattern.name);
+    const regex = getCachedRegex('js', pattern.name);
     let match: RegExpExecArray | null;
 
     while ((match = regex.exec(code)) !== null) {
@@ -126,6 +273,22 @@ function tokenize(code: string, language: Language): Token[] {
 
   // Sort tokens by start position for proper rendering order
   return tokens.sort((a, b) => a.start - b.start);
+}
+
+/**
+ * Tokenize code using language-specific patterns with optimized caching
+ * @param code - Source code to tokenize
+ * @param language - Language to use for tokenization
+ * @returns Array of tokens with position information
+ */
+function tokenize(code: string, language: Language): Token[] {
+  // Use specialized HTML tokenizer for HTML content to handle script tags
+  if (language === 'html') {
+    return tokenizeHtml(code);
+  }
+
+  // Use JavaScript tokenizer for JavaScript content
+  return tokenizeJavaScript(code);
 }
 
 /**

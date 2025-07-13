@@ -425,3 +425,260 @@ describe('Error Handling and Edge Cases', () => {
     expect(result).toContain('<span class="token keyword">const</span>');
   });
 });
+
+describe('Phase 4: Enhanced HTML Language Support', () => {
+  describe('Enhanced HTML Patterns', () => {
+    it('should highlight enhanced attribute names with colons, underscores, and hyphens', () => {
+      const code = '<div data-test="value" xml:lang="en" my_attr="test">';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain(
+        '<span class="token attr-name">data-test</span>'
+      );
+      expect(result).toContain('<span class="token attr-name">xml:lang</span>');
+      expect(result).toContain('<span class="token attr-name">my_attr</span>');
+    });
+
+    it('should handle attribute values with escaped quotes', () => {
+      const code =
+        '<div title="He said \\"Hello\\"" data-value=\'Single "quote" inside\'>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain(
+        '<span class="token attr-value">&quot;He said \\&quot;Hello\\&quot;&quot;</span>'
+      );
+      expect(result).toContain(
+        '<span class="token attr-value">&#39;Single &quot;quote&quot; inside&#39;</span>'
+      );
+    });
+
+    it('should highlight self-closing tags', () => {
+      const code = '<img src="test.jpg" /> <br/> <input type="text"/>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token attr-name">src</span>');
+      expect(result).toContain(
+        '<span class="token attr-value">&quot;test.jpg&quot;</span>'
+      );
+      expect(result).toContain('<span class="token tag">&lt;br/&gt;</span>');
+      expect(result).toContain('<span class="token attr-name">type</span>');
+      expect(result).toContain(
+        '<span class="token attr-value">&quot;text&quot;</span>'
+      );
+    });
+
+    it('should handle unclosed tags gracefully', () => {
+      const code = '<div class="test" <span>content</span>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token attr-name">class</span>');
+      expect(result).toContain(
+        '<span class="token attr-value">&quot;test&quot;</span>'
+      );
+      expect(result).toContain('<span class="token tag">&lt;/span&gt;</span>');
+    });
+
+    it('should handle missing quotes in attributes', () => {
+      const code = '<div class=test id="proper">content</div>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token attr-name">class</span>');
+      expect(result).toContain('<span class="token attr-name">id</span>');
+      expect(result).toContain(
+        '<span class="token attr-value">&quot;proper&quot;</span>'
+      );
+    });
+  });
+
+  describe('Script Tag Context Switching', () => {
+    it('should highlight JavaScript inside script tags', () => {
+      const code =
+        '<script>function test() { const x = 42; return "hello"; }</script>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token tag">&lt;script&gt;</span>');
+      expect(result).toContain('<span class="token keyword">function</span>');
+      expect(result).toContain('<span class="token keyword">const</span>');
+      expect(result).toContain('<span class="token keyword">return</span>');
+      expect(result).toContain('<span class="token number">42</span>');
+      expect(result).toContain(
+        '<span class="token string">&quot;hello&quot;</span>'
+      );
+      expect(result).toContain(
+        '<span class="token tag">&lt;/script&gt;</span>'
+      );
+    });
+
+    it('should handle script tags with attributes', () => {
+      const code =
+        '<script type="text/javascript" src="app.js">alert("test");</script>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token attr-name">type</span>');
+      expect(result).toContain(
+        '<span class="token attr-value">&quot;text/javascript&quot;</span>'
+      );
+      expect(result).toContain('<span class="token attr-name">src</span>');
+      expect(result).toContain(
+        '<span class="token attr-value">&quot;app.js&quot;</span>'
+      );
+      expect(result).toContain('<span class="token keyword">alert</span>');
+      expect(result).toContain(
+        '<span class="token string">&quot;test&quot;</span>'
+      );
+      expect(result).toContain(
+        '<span class="token tag">&lt;/script&gt;</span>'
+      );
+    });
+
+    it('should handle multiple script tags', () => {
+      const code = `
+        <script>const a = 1;</script>
+        <div>HTML content</div>
+        <script>const b = 2;</script>
+      `;
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token keyword">const</span>');
+      expect(result).toContain('<span class="token number">1</span>');
+      expect(result).toContain('<span class="token number">2</span>');
+      expect(result).toContain('<span class="token tag">&lt;div&gt;</span>');
+    });
+
+    it('should handle empty script tags', () => {
+      const code = '<script></script>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token tag">&lt;script&gt;</span>');
+      expect(result).toContain(
+        '<span class="token tag">&lt;/script&gt;</span>'
+      );
+    });
+
+    it('should handle script tags with only whitespace', () => {
+      const code = '<script>   \n  \t  </script>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token tag">&lt;script&gt;</span>');
+      expect(result).toContain(
+        '<span class="token tag">&lt;/script&gt;</span>'
+      );
+    });
+
+    it('should handle complex JavaScript with comments in script tags', () => {
+      const code = `
+        <script>
+          // This is a comment
+          function calculate() {
+            /* Multi-line 
+               comment */
+            return x * 2;
+          }
+        </script>
+      `;
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain(
+        '<span class="token comment">// This is a comment</span>'
+      );
+      expect(result).toContain('<span class="token comment">/* Multi-line');
+      expect(result).toContain('<span class="token keyword">function</span>');
+      expect(result).toContain('<span class="token keyword">return</span>');
+    });
+
+    it('should handle script tags case insensitively', () => {
+      const code = '<SCRIPT>const x = 1;</SCRIPT>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token tag">&lt;SCRIPT&gt;</span>');
+      expect(result).toContain('<span class="token keyword">const</span>');
+      expect(result).toContain(
+        '<span class="token tag">&lt;/SCRIPT&gt;</span>'
+      );
+    });
+  });
+
+  describe('HTML Edge Cases', () => {
+    it('should handle nested quotes in attribute values', () => {
+      const code = `<div onclick="alert('Hello "World"')">Click me</div>`;
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token attr-name">onclick</span>');
+      expect(result).toContain(
+        '<span class="token attr-value">&quot;alert(&#39;Hello &quot;World&quot;&#39;)&quot;</span>'
+      );
+    });
+
+    it('should handle malformed HTML with script tags', () => {
+      const code = '<div><script>const x = 1;</script <span>test</span>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token keyword">const</span>');
+      expect(result).toContain('<span class="token tag">&lt;span&gt;</span>');
+    });
+
+    it('should handle script tag with unclosed JavaScript string', () => {
+      const code = '<script>const msg = "unclosed string;</script>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain('<span class="token keyword">const</span>');
+      expect(result).toContain(
+        '<span class="token tag">&lt;/script&gt;</span>'
+      );
+    });
+
+    it('should handle HTML comments properly', () => {
+      const code = '<!-- This is a comment --> <div>content</div>';
+      const result = highlight(code, { language: 'html' });
+
+      expect(result).toContain(
+        '<span class="token comment">&lt;!-- This is a comment --&gt;</span>'
+      );
+      expect(result).toContain('<span class="token tag">&lt;div&gt;</span>');
+    });
+
+    it('should handle HTML with complex structure and script tags', () => {
+      const code = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Test Page</title>
+            <script>
+              const config = {
+                name: "test",
+                value: 42
+              };
+            </script>
+          </head>
+          <body>
+            <div class="container">
+              <h1>Hello World</h1>
+              <script>
+                document.querySelector('h1').textContent = config.name;
+              </script>
+            </div>
+          </body>
+        </html>
+      `;
+      const result = highlight(code, { language: 'html' });
+
+      // Check HTML elements
+      expect(result).toContain('<span class="token tag">&lt;html&gt;</span>');
+      expect(result).toContain('<span class="token tag">&lt;title&gt;</span>');
+      expect(result).toContain('<span class="token attr-name">class</span>');
+      expect(result).toContain(
+        '<span class="token attr-value">&quot;container&quot;</span>'
+      );
+
+      // Check JavaScript inside script tags
+      expect(result).toContain('<span class="token keyword">const</span>');
+      expect(result).toContain(
+        '<span class="token string">&quot;test&quot;</span>'
+      );
+      expect(result).toContain('<span class="token number">42</span>');
+      expect(result).toContain(
+        '<span class="token string">&quot;h1&quot;</span>'
+      );
+    });
+  });
+});
