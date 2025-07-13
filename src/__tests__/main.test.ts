@@ -166,6 +166,244 @@ describe('Pattern Caching Performance', () => {
   });
 });
 
+describe('Enhanced JavaScript Language Support', () => {
+  describe('Enhanced Keywords', () => {
+    it('should highlight ES6+ keywords', () => {
+      const code = 'async function test() { await promise; }';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token keyword">async</span>');
+      expect(result).toContain('<span class="token keyword">function</span>');
+      expect(result).toContain('<span class="token keyword">await</span>');
+    });
+
+    it('should highlight class-related keywords', () => {
+      const code = 'class MyClass extends BaseClass { static method() {} }';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token keyword">class</span>');
+      expect(result).toContain('<span class="token keyword">extends</span>');
+      expect(result).toContain('<span class="token keyword">static</span>');
+    });
+
+    it('should highlight boolean and null keywords', () => {
+      const code =
+        'const flag = true; const empty = null; const undef = undefined;';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token keyword">const</span>');
+      expect(result).toContain('<span class="token keyword">true</span>');
+      expect(result).toContain('<span class="token keyword">null</span>');
+      expect(result).toContain('<span class="token keyword">undefined</span>');
+    });
+
+    it('should highlight reserved words that are not commonly used', () => {
+      const code = 'typeof arguments; eval("code"); debugger;';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token keyword">typeof</span>');
+      expect(result).toContain('<span class="token keyword">arguments</span>');
+      expect(result).toContain('<span class="token keyword">eval</span>');
+      expect(result).toContain('<span class="token keyword">debugger</span>');
+    });
+  });
+
+  describe('Enhanced Numbers', () => {
+    it('should highlight various number formats', () => {
+      const code = '42 3.14 0xFF 0b1010 0o777 1e10 2.5e-3';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token number">42</span>');
+      expect(result).toContain('<span class="token number">3.14</span>');
+      expect(result).toContain('<span class="token number">0xFF</span>');
+      expect(result).toContain('<span class="token number">0b1010</span>');
+      expect(result).toContain('<span class="token number">0o777</span>');
+      expect(result).toContain('<span class="token number">1e10</span>');
+      expect(result).toContain('<span class="token number">2.5e-3</span>');
+    });
+
+    it('should highlight BigInt literals', () => {
+      const code = '42n 0xFFn 0b1010n 0o777n';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token number">42n</span>');
+      expect(result).toContain('<span class="token number">0xFFn</span>');
+      expect(result).toContain('<span class="token number">0b1010n</span>');
+      expect(result).toContain('<span class="token number">0o777n</span>');
+    });
+
+    it('should handle edge cases in numbers', () => {
+      const code = '0.5 5.0 123.456e+10 0.123e-5';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token number">0.5</span>');
+      expect(result).toContain('<span class="token number">5.0</span>');
+      expect(result).toContain('<span class="token number">123.456e+10</span>');
+      expect(result).toContain('<span class="token number">0.123e-5</span>');
+    });
+  });
+
+  describe('Enhanced Strings', () => {
+    it('should highlight strings with escape sequences', () => {
+      const code = "\"Hello\\nWorld\" 'It\\'s working' `Template\\`string`";
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain(
+        '<span class="token string">&quot;Hello\\nWorld&quot;</span>'
+      );
+      expect(result).toContain(
+        '<span class="token string">&#39;It\\&#39;s working&#39;</span>'
+      );
+      expect(result).toContain(
+        '<span class="token string">`Template\\`string`</span>'
+      );
+    });
+
+    it('should handle line continuation in strings', () => {
+      const code = '"long \\\nstring"';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain(
+        '<span class="token string">&quot;long \\\nstring&quot;</span>'
+      );
+    });
+
+    it('should handle template literals with expressions', () => {
+      const code = '`Hello ${name}! The result is ${x + y}.`';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain(
+        '<span class="token string">`Hello ${name}! The result is ${x + y}.`</span>'
+      );
+    });
+  });
+
+  describe('Enhanced Operators', () => {
+    it('should highlight assignment operators', () => {
+      const code = 'x += 5; y -= 3; z *= 2; a %= 6; b **= 2;';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token operator">+=</span>');
+      expect(result).toContain('<span class="token operator">-=</span>');
+      expect(result).toContain('<span class="token operator">*=</span>');
+      expect(result).toContain('<span class="token operator">%=</span>');
+      expect(result).toContain('<span class="token operator">**=</span>');
+    });
+
+    it('should highlight comparison operators', () => {
+      const code = 'a == b; c != d; e === f; g !== h; i <= j; k >= l;';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token operator">==</span>');
+      expect(result).toContain('<span class="token operator">!=</span>');
+      expect(result).toContain('<span class="token operator">===</span>');
+      expect(result).toContain('<span class="token operator">!==</span>');
+      expect(result).toContain('<span class="token operator">&lt;=</span>');
+      expect(result).toContain('<span class="token operator">&gt;=</span>');
+    });
+
+    it('should highlight logical and bitwise operators', () => {
+      const code =
+        'a && b; c || d; x ?? y; p & q; r | s; t ^ u; ~v; w << 2; x >> 3; y >>> 4;';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain(
+        '<span class="token operator">&amp;&amp;</span>'
+      );
+      expect(result).toContain('<span class="token operator">||</span>');
+      expect(result).toContain('<span class="token operator">??</span>');
+      expect(result).toContain('<span class="token operator">&amp;</span>');
+      expect(result).toContain('<span class="token operator">|</span>');
+      expect(result).toContain('<span class="token operator">^</span>');
+      expect(result).toContain('<span class="token operator">~</span>');
+      expect(result).toContain('<span class="token operator">&lt;&lt;</span>');
+      expect(result).toContain(
+        '<span class="token operator">&gt;&gt;&gt;</span>'
+      );
+    });
+
+    it('should highlight modern operators', () => {
+      const code =
+        'const fn = x => x + 1; a ??= b; c ||= d; e &&= f; g++; h--; ...spread;';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token operator">=&gt;</span>');
+      expect(result).toContain('<span class="token operator">??=</span>');
+      expect(result).toContain('<span class="token operator">||=</span>');
+      expect(result).toContain(
+        '<span class="token operator">&amp;&amp;=</span>'
+      );
+      expect(result).toContain('<span class="token operator">++</span>');
+      expect(result).toContain('<span class="token operator">--</span>');
+      expect(result).toContain('<span class="token operator">...</span>');
+    });
+  });
+
+  describe('Enhanced Comments', () => {
+    it('should highlight multi-line comments', () => {
+      const code = '/* This is a multi-line comment */ let x = 5;';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain(
+        '<span class="token comment">/* This is a multi-line comment */</span>'
+      );
+      expect(result).toContain('<span class="token keyword">let</span>');
+    });
+
+    it('should handle strings properly', () => {
+      const code = 'const msg = "Hello World";';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain(
+        '<span class="token string">&quot;Hello World&quot;</span>'
+      );
+      expect(result).toContain('<span class="token keyword">const</span>');
+    });
+  });
+
+  describe('Complex Code Examples', () => {
+    it('should handle modern JavaScript features', () => {
+      const code = `
+        class MyClass extends Base {
+          static async method() {
+            const result = await fetch('/api');
+            return result?.data ?? [];
+          }
+        }
+      `;
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token keyword">class</span>');
+      expect(result).toContain('<span class="token keyword">extends</span>');
+      expect(result).toContain('<span class="token keyword">static</span>');
+      expect(result).toContain('<span class="token keyword">async</span>');
+      expect(result).toContain('<span class="token keyword">await</span>');
+      expect(result).toContain('<span class="token keyword">return</span>');
+      expect(result).toContain('<span class="token operator">??</span>');
+    });
+
+    it('should handle destructuring and arrow functions', () => {
+      const code =
+        'const { name, age } = person; const fn = ({ x, y }) => x + y;';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain('<span class="token keyword">const</span>');
+      expect(result).toContain('<span class="token operator">=&gt;</span>');
+      expect(result).toContain('<span class="token operator">+</span>');
+    });
+
+    it('should handle template literals with complex expressions', () => {
+      const code =
+        '`Result: ${items.map(x => x * 2).join(", ")} items processed.`';
+      const result = highlight(code, { language: 'js' });
+
+      expect(result).toContain(
+        '<span class="token string">`Result: ${items.map(x =&gt; x * 2).join(&quot;, &quot;)} items processed.`</span>'
+      );
+    });
+  });
+});
+
 describe('Error Handling and Edge Cases', () => {
   it('should never throw exceptions', () => {
     expect(() => highlight(null as any)).not.toThrow();

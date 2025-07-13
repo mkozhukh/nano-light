@@ -19,47 +19,55 @@ export const javascriptPatterns: LanguagePattern[] = [
     type: 'comment',
   },
 
-  // Template literals (backtick strings)
+  // Template literals - enhanced to handle escape sequences and expressions
   {
     name: 'template-literal',
-    regex: /`(?:[^`\\]|\\.)*`/g,
+    regex: /`(?:[^`\\$]|\\.|\\[\r\n]|\$(?!\{)|(?:\$\{(?:[^{}\\]|\\.)*\}))*`/g,
     type: 'string',
   },
 
-  // Double-quoted strings
+  // Double-quoted strings - enhanced escape sequence handling
   {
     name: 'double-quoted-string',
-    regex: /"(?:[^"\\]|\\.)*"/g,
+    regex: /"(?:[^"\\]|\\.|\\[\r\n])*"/g,
     type: 'string',
   },
 
-  // Single-quoted strings
+  // Single-quoted strings - enhanced escape sequence handling
   {
     name: 'single-quoted-string',
-    regex: /'(?:[^'\\]|\\.)*'/g,
+    regex: /'(?:[^'\\]|\\.|\\[\r\n])*'/g,
     type: 'string',
   },
 
-  // Numbers (integers, floats, hex, binary, octal)
+  // Numbers - comprehensive support for all JavaScript numeric literals
   {
     name: 'number',
     regex:
-      /\b(?:0[xX][0-9a-fA-F]+|0[bB][01]+|0[oO][0-7]+|\d+\.?\d*(?:[eE][+-]?\d+)?)\b/g,
+      /\b(?:0[xX][0-9a-fA-F]+[nN]?|0[bB][01]+[nN]?|0[oO][0-7]+[nN]?|\d+[nN]|(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?[nN]?)\b/g,
     type: 'number',
   },
 
-  // Keywords
+  // Keywords - comprehensive set including ES6+ features and built-ins
   {
     name: 'keyword',
     regex:
-      /\b(?:async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|enum|export|extends|false|finally|for|function|if|import|in|instanceof|let|new|null|return|super|switch|this|throw|true|try|typeof|undefined|var|void|while|with|yield)\b/g,
+      /\b(?:abstract|arguments|async|await|boolean|break|byte|case|catch|char|class|const|continue|debugger|default|delete|do|double|else|enum|eval|export|extends|false|final|finally|float|for|function|goto|if|implements|import|in|instanceof|int|interface|let|long|native|new|null|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|true|try|typeof|undefined|var|void|volatile|while|with|yield)\b/g,
     type: 'keyword',
   },
 
-  // Operators
+  // Operators - comprehensive set including assignment, comparison, and logical operators (excluding /)
   {
     name: 'operator',
-    regex: /[+\-*/%=!<>&|^~?:]+|&&|\|\||<<|>>|>>>|\*\*|\.\.\.|\?\?/g,
+    regex:
+      /[+\-*%=!<>&|^~?:@]+|&&|\|\||<<|>>|>>>|\*\*|\.\.\.|\?\?|\?\?\=|\|\|\=|&&\=|\+\+|--|=>|==|!=|===|!==|<=|>=|\+=|-=|\*=|%=|\*\*=|<<=|>>=|>>>=|&=|\|=|\^=/g,
+    type: 'operator',
+  },
+
+  // Division operator - placed last to not interfere with comments
+  {
+    name: 'division',
+    regex: /\//g,
     type: 'operator',
   },
 ];
