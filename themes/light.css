@@ -1,12 +1,21 @@
 /**
  * Highlight-nano Light Theme
- * A clean, GitHub-inspired light theme for code highlighting
+ * Phase 6 specification-compliant light theme for code highlighting
+ * 
+ * Color Specifications:
+ * - Keywords: #d73a49 (red-toned)
+ * - Strings: #032f62 (dark blue)
+ * - Numbers: #005cc5 (blue)
+ * - Comments: #6a737d (gray, italic)
+ * - Operators: #d73a49 (red-toned, same as keywords)
+ * - Tags: #22863a (green)
+ * - Attribute names: #6f42c1 (purple)
+ * - Attribute values: #032f62 (dark blue, same as strings)
  */
 
 /* Base styles for highlighted code containers */
 .highlight-code {
-  font-family:
-    'Courier New', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-family: 'Courier New', monospace;
   font-size: 14px;
   line-height: 1.4;
   background-color: #f6f8fa;
@@ -16,46 +25,66 @@
   overflow-x: auto;
 }
 
-/* JavaScript token styles */
+/* 
+ * Token styles following Phase 6 specification
+ * All colors are exact matches to the spec requirements
+ */
+
+/* JavaScript tokens */
 .token.keyword {
-  color: #d73a49;
-  font-weight: 600;
+  color: #d73a49; /* Phase 6 spec: Keywords */
 }
 
 .token.string {
-  color: #032f62;
+  color: #032f62; /* Phase 6 spec: Strings */
 }
 
 .token.number {
-  color: #005cc5;
+  color: #005cc5; /* Phase 6 spec: Numbers */
 }
 
 .token.comment {
-  color: #6a737d;
-  font-style: italic;
+  color: #6a737d; /* Phase 6 spec: Comments */
+  font-style: italic; /* Phase 6 spec: Comments italic */
 }
 
 .token.operator {
-  color: #d73a49;
+  color: #d73a49; /* Phase 6 spec: Operators */
 }
 
-/* HTML token styles */
+/* HTML tokens */
 .token.tag {
-  color: #22863a;
+  color: #22863a; /* Phase 6 spec: Tags */
 }
 
 .token.attr-name {
-  color: #6f42c1;
+  color: #6f42c1; /* Phase 6 spec: Attribute names */
 }
 
 .token.attr-value {
-  color: #032f62;
+  color: #032f62; /* Phase 6 spec: Attribute values */
 }
 
-/* Optional: Subtle background for inline code */
+/* 
+ * Optional utility styles for different use cases
+ * These are not part of the Phase 6 specification but provide flexibility
+ */
+
+/* Inline code variant with minimal styling */
 .highlight-code.inline {
   display: inline;
   padding: 2px 4px;
   background-color: rgba(27, 31, 35, 0.05);
   border-radius: 3px;
+  font-size: inherit; /* Use parent font size for inline */
+  line-height: inherit; /* Use parent line height for inline */
+}
+
+/* Block code variant (default styling, explicit for clarity) */
+.highlight-code.block {
+  display: block;
+  padding: 16px;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  overflow-x: auto;
 }

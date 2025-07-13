@@ -1,12 +1,18 @@
 /**
  * Highlight-nano Dark Theme
- * A sleek dark theme with good contrast for code highlighting
+ * Phase 6 specification-compliant dark theme with proper contrast
+ * 
+ * Color Design Philosophy:
+ * - Maintains good contrast ratios for accessibility
+ * - Preserves visual hierarchy from light theme
+ * - Uses darker background with lighter text
+ * - Token colors are brightened versions of light theme colors
+ * - Follows Phase 6 base style requirements
  */
 
 /* Base styles for highlighted code containers */
 .highlight-code {
-  font-family:
-    'Courier New', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-family: 'Courier New', monospace;
   font-size: 14px;
   line-height: 1.4;
   background-color: #0d1117;
@@ -16,46 +22,66 @@
   overflow-x: auto;
 }
 
-/* JavaScript token styles */
+/* 
+ * Token styles for dark theme with appropriate contrast
+ * Colors are carefully chosen to maintain readability and visual hierarchy
+ */
+
+/* JavaScript tokens */
 .token.keyword {
-  color: #ff7b72;
-  font-weight: 600;
+  color: #ff7b72; /* Brightened red for dark background */
 }
 
 .token.string {
-  color: #a5d6ff;
+  color: #a5d6ff; /* Light blue for good contrast */
 }
 
 .token.number {
-  color: #79c0ff;
+  color: #79c0ff; /* Bright blue for numbers */
 }
 
 .token.comment {
-  color: #8b949e;
-  font-style: italic;
+  color: #8b949e; /* Muted gray for comments */
+  font-style: italic; /* Phase 6 spec: Comments italic */
 }
 
 .token.operator {
-  color: #ff7b72;
+  color: #ff7b72; /* Same as keywords for consistency */
 }
 
-/* HTML token styles */
+/* HTML tokens */
 .token.tag {
-  color: #7ee787;
+  color: #7ee787; /* Bright green for tags */
 }
 
 .token.attr-name {
-  color: #ffa657;
+  color: #ffa657; /* Orange for attribute names */
 }
 
 .token.attr-value {
-  color: #a5d6ff;
+  color: #a5d6ff; /* Light blue, same as strings */
 }
 
-/* Optional: Subtle background for inline code */
+/* 
+ * Optional utility styles for different use cases
+ * Dark theme variants with appropriate contrast
+ */
+
+/* Inline code variant with minimal styling */
 .highlight-code.inline {
   display: inline;
   padding: 2px 4px;
   background-color: rgba(240, 246, 252, 0.1);
   border-radius: 3px;
+  font-size: inherit; /* Use parent font size for inline */
+  line-height: inherit; /* Use parent line height for inline */
+}
+
+/* Block code variant (default styling, explicit for clarity) */
+.highlight-code.block {
+  display: block;
+  padding: 16px;
+  background-color: #0d1117;
+  border-radius: 6px;
+  overflow-x: auto;
 }

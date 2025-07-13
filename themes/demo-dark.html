@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Highlight-nano Dark Theme Demo</title>
+    <link rel="stylesheet" href="dark.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 10px;
+            color: #f0f6fc;
+        }
+        .demo-section {
+            margin-bottom: 40px;
+        }
+        .theme-info {
+            background-color: #0c2d6b;
+            border: 1px solid #1f6feb;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Highlight-nano Dark Theme Demo</h1>
+        
+        <div class="theme-info">
+            <strong>Phase 6 Dark Theme Design:</strong>
+            <ul>
+                <li>Base font: Courier New, monospace (14px, 1.4 line height)</li>
+                <li>High contrast colors for dark background</li>
+                <li>Keywords: #ff7b72 | Strings: #a5d6ff | Numbers: #79c0ff</li>
+                <li>Comments: #8b949e (italic) | Operators: #ff7b72</li>
+                <li>Tags: #7ee787 | Attribute names: #ffa657 | Attribute values: #a5d6ff</li>
+            </ul>
+        </div>
+
+        <div class="demo-section">
+            <h2>JavaScript Example</h2>
+            <pre class="highlight-code"><span class="token comment">// Modern JavaScript features demonstration</span>
+<span class="token keyword">const</span> apiConfig <span class="token operator">=</span> {
+  baseUrl<span class="token operator">:</span> <span class="token string">"https://api.example.com"</span><span class="token operator">,</span>
+  timeout<span class="token operator">:</span> <span class="token number">5000</span><span class="token operator">,</span>
+  retries<span class="token operator">:</span> <span class="token number">3</span>
+}<span class="token operator">;</span>
+
+<span class="token comment">/* Async function with error handling */</span>
+<span class="token keyword">async</span> <span class="token keyword">function</span> fetchUserData<span class="token operator">(</span>userId<span class="token operator">)</span> {
+  <span class="token keyword">try</span> {
+    <span class="token keyword">const</span> response <span class="token operator">=</span> <span class="token keyword">await</span> fetch<span class="token operator">(</span><span class="token string">`</span><span class="token operator">${</span>apiConfig<span class="token operator">.</span>baseUrl<span class="token operator">}</span><span class="token string">/users/</span><span class="token operator">${</span>userId<span class="token operator">}</span><span class="token string">`</span><span class="token operator">)</span><span class="token operator">;</span>
+    
+    <span class="token keyword">if</span> <span class="token operator">(</span><span class="token operator">!</span>response<span class="token operator">.</span>ok<span class="token operator">)</span> {
+      <span class="token keyword">throw</span> <span class="token keyword">new</span> Error<span class="token operator">(</span><span class="token string">"Failed to fetch user data"</span><span class="token operator">)</span><span class="token operator">;</span>
+    }
+    
+    <span class="token keyword">return</span> <span class="token keyword">await</span> response<span class="token operator">.</span>json<span class="token operator">(</span><span class="token operator">)</span><span class="token operator">;</span>
+  } <span class="token keyword">catch</span> <span class="token operator">(</span>error<span class="token operator">)</span> {
+    console<span class="token operator">.</span>error<span class="token operator">(</span><span class="token string">"API Error:"</span><span class="token operator">,</span> error<span class="token operator">)</span><span class="token operator">;</span>
+    <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token operator">;</span>
+  }
+}</pre>
+        </div>
+
+        <div class="demo-section">
+            <h2>HTML Example</h2>
+            <pre class="highlight-code">&lt;!DOCTYPE html&gt;
+<span class="token tag">&lt;html <span class="token attr-name">lang</span>=<span class="token attr-value">"en"</span>&gt;</span>
+  <span class="token tag">&lt;head&gt;</span>
+    <span class="token tag">&lt;meta <span class="token attr-name">charset</span>=<span class="token attr-value">"UTF-8"</span>&gt;</span>
+    <span class="token tag">&lt;title&gt;</span>Sample Page<span class="token tag">&lt;/title&gt;</span>
+    <span class="token tag">&lt;script&gt;</span>
+      <span class="token comment">// JavaScript inside HTML</span>
+      <span class="token keyword">const</span> config <span class="token operator">=</span> {
+        version<span class="token operator">:</span> <span class="token string">"1.0.0"</span><span class="token operator">,</span>
+        debug<span class="token operator">:</span> <span class="token keyword">true</span>
+      }<span class="token operator">;</span>
+    <span class="token tag">&lt;/script&gt;</span>
+  <span class="token tag">&lt;/head&gt;</span>
+  <span class="token tag">&lt;body&gt;</span>
+    <span class="token comment">&lt;!-- Main content area --&gt;</span>
+    <span class="token tag">&lt;div <span class="token attr-name">class</span>=<span class="token attr-value">"container"</span> <span class="token attr-name">id</span>=<span class="token attr-value">"main-content"</span>&gt;</span>
+      <span class="token tag">&lt;h1&gt;</span>Welcome<span class="token tag">&lt;/h1&gt;</span>
+      <span class="token tag">&lt;p&gt;</span>This is a sample page.<span class="token tag">&lt;/p&gt;</span>
+    <span class="token tag">&lt;/div&gt;</span>
+  <span class="token tag">&lt;/body&gt;</span>
+<span class="token tag">&lt;/html&gt;</span></pre>
+        </div>
+
+        <div class="demo-section">
+            <h2>Mixed Content Example</h2>
+            <pre class="highlight-code"><span class="token tag">&lt;script <span class="token attr-name">type</span>=<span class="token attr-value">"module"</span>&gt;</span>
+  <span class="token comment">// ES6 module with various token types</span>
+  <span class="token keyword">import</span> { createElement } <span class="token keyword">from</span> <span class="token string">'./utils.js'</span><span class="token operator">;</span>
+  
+  <span class="token keyword">const</span> numbers <span class="token operator">=</span> [<span class="token number">1</span><span class="token operator">,</span> <span class="token number">2.5</span><span class="token operator">,</span> <span class="token number">0xFF</span><span class="token operator">,</span> <span class="token number">1e10</span>]<span class="token operator">;</span>
+  <span class="token keyword">const</span> operators <span class="token operator">=</span> [<span class="token string">'+'</span><span class="token operator">,</span> <span class="token string">'-'</span><span class="token operator">,</span> <span class="token string">'*'</span><span class="token operator">,</span> <span class="token string">'/'</span><span class="token operator">,</span> <span class="token string">'=='</span><span class="token operator">,</span> <span class="token string">'==='</span>]<span class="token operator">;</span>
+  
+  <span class="token comment">/* Block comment example */</span>
+  <span class="token keyword">if</span> <span class="token operator">(</span>window<span class="token operator">.</span>location<span class="token operator">.</span>hostname <span class="token operator">===</span> <span class="token string">'localhost'</span><span class="token operator">)</span> {
+    console<span class="token operator">.</span>log<span class="token operator">(</span><span class="token string">'Development mode'</span><span class="token operator">)</span><span class="token operator">;</span>
+  }
+<span class="token tag">&lt;/script&gt;</span></pre>
+        </div>
+    </div>
+</body>
+</html>
