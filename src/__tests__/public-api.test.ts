@@ -4,7 +4,7 @@ import type { HighlightOptions } from '../types';
 
 /**
  * Phase 5: Production-ready Public API Tests
- * 
+ *
  * These tests focus on the robustness and reliability of the public API,
  * ensuring it handles all edge cases gracefully and never throws exceptions.
  */
@@ -63,18 +63,20 @@ describe('Public API - Production Ready Behavior', () => {
 
     it('should handle malformed options gracefully', () => {
       const code = 'const x = 42;';
-      
+
       // Invalid options object
       expect(() => highlight(code, null as any)).not.toThrow();
       expect(() => highlight(code, undefined as any)).not.toThrow();
       expect(() => highlight(code, 'invalid' as any)).not.toThrow();
       expect(() => highlight(code, 42 as any)).not.toThrow();
-      
+
       // Invalid language option
-      expect(() => highlight(code, { language: 'python' as any })).not.toThrow();
+      expect(() =>
+        highlight(code, { language: 'python' as any })
+      ).not.toThrow();
       expect(() => highlight(code, { language: '' as any })).not.toThrow();
       expect(() => highlight(code, { language: null as any })).not.toThrow();
-      
+
       // Results should still be reasonable
       const result1 = highlight(code, { language: 'invalid' as any });
       const result2 = highlight(code, { language: 'js' });
@@ -86,7 +88,7 @@ describe('Public API - Production Ready Behavior', () => {
     it('should auto-detect JavaScript correctly', () => {
       const jsCode = 'const x = 42; function test() {}';
       const result = highlight(jsCode);
-      
+
       expect(result).toContain('<span class=\"token keyword\">const</span>');
       expect(result).toContain('<span class=\"token keyword\">function</span>');
       expect(result).toContain('<span class=\"token number\">42</span>');
@@ -95,18 +97,20 @@ describe('Public API - Production Ready Behavior', () => {
     it('should auto-detect HTML correctly', () => {
       const htmlCode = '<div class=\"test\">Hello</div>';
       const result = highlight(htmlCode);
-      
+
       expect(result).toContain('<span class=\"token tag\">');
       expect(result).toContain('<span class=\"token attr-name\">class</span>');
-      expect(result).toContain('<span class=\"token attr-value\">\"test\"</span>');
+      expect(result).toContain(
+        '<span class=\"token attr-value\">&quot;test&quot;</span>'
+      );
     });
 
     it('should respect explicit language option', () => {
       const code = 'test content';
-      
+
       const jsResult = highlight(code, { language: 'js' });
       const htmlResult = highlight(code, { language: 'html' });
-      
+
       // Results should be different (different tokenization)
       expect(jsResult).toBe('test content'); // No JS tokens found
       expect(htmlResult).toBe('test content'); // No HTML tokens found
@@ -116,7 +120,7 @@ describe('Public API - Production Ready Behavior', () => {
       const code = 'const x = 42;';
       const result1 = highlight(code, { language: 'js' });
       const result2 = highlight(code, { language: 'JS' as any });
-      
+
       // Should fall back to auto-detection for invalid case
       expect(result2).toContain('<span class=\"token keyword\">const</span>');
     });
@@ -125,8 +129,8 @@ describe('Public API - Production Ready Behavior', () => {
   describe('Output Format and Safety', () => {
     it('should always return a string', () => {
       const inputs = [null, undefined, '', 'test', 42, {}, []];
-      
-      inputs.forEach(input => {
+
+      inputs.forEach((input) => {
         const result = highlight(input as any);
         expect(typeof result).toBe('string');
       });
@@ -135,7 +139,7 @@ describe('Public API - Production Ready Behavior', () => {
     it('should properly escape HTML entities', () => {
       const code = 'const html = \"<div>test</div>\";';
       const result = highlight(code, { language: 'js' });
-      
+
       // Should escape HTML entities in the output
       expect(result).toContain('&lt;div&gt;');
       expect(result).toContain('&quot;');
@@ -151,22 +155,25 @@ describe('Public API - Production Ready Behavior', () => {
         `'onload='alert(1)'`,
       ];
 
-      maliciousInputs.forEach(input => {
+      maliciousInputs.forEach((input) => {
         const result = highlight(input);
-        
+
         // Should not contain unescaped HTML
         expect(result).not.toMatch(/<script[^>]*>/);
         expect(result).not.toMatch(/onerror=/);
         expect(result).not.toContain('onload=alert');
         expect(result).not.toContain('onerror=alert');
-        
+
         // Should contain escaped versions for inputs with HTML characters
-        if (input.includes('<') || input.includes('"') || input.includes('\'')) {
-          expect(result.includes('&lt;') || result.includes('&quot;') || result.includes('&#39;')).toBe(true);
+        if (input.includes('<') || input.includes('"') || input.includes("'")) {
+          expect(
+            result.includes('&lt;') ||
+              result.includes('&quot;') ||
+              result.includes('&#39;')
+          ).toBe(true);
         }
       });
     });
-
   });
 
   describe('Performance and Scalability', () => {
@@ -174,7 +181,10 @@ describe('Public API - Production Ready Behavior', () => {
       // Generate a larger code sample
       const largeCode = `
         function processData() {
-          const data = [${Array(1000).fill(0).map((_, i) => `\"item${i}\"`).join(', ')}];
+          const data = [${Array(1000)
+            .fill(0)
+            .map((_, i) => `\"item${i}\"`)
+            .join(', ')}];
           return data.map(item => {
             // Process each item
             return item.toUpperCase();
@@ -185,10 +195,10 @@ describe('Public API - Production Ready Behavior', () => {
       const startTime = Date.now();
       const result = highlight(largeCode, { language: 'js' });
       const endTime = Date.now();
-      
+
       // Should complete in reasonable time (< 1 second)
       expect(endTime - startTime).toBeLessThan(1000);
-      
+
       // Should still produce correct output
       expect(result).toContain('<span class=\"token keyword\">function</span>');
       expect(result).toContain('<span class=\"token keyword\">const</span>');
@@ -196,11 +206,13 @@ describe('Public API - Production Ready Behavior', () => {
 
     it('should be consistent across multiple calls', () => {
       const code = 'function test() { return \"hello\"; }';
-      
+
       // Call multiple times and ensure results are identical
-      const results = Array(10).fill(0).map(() => highlight(code, { language: 'js' }));
-      
-      results.forEach(result => {
+      const results = Array(10)
+        .fill(0)
+        .map(() => highlight(code, { language: 'js' }));
+
+      results.forEach((result) => {
         expect(result).toBe(results[0]);
       });
     });
@@ -214,12 +226,18 @@ describe('Public API - Production Ready Behavior', () => {
       ];
 
       // Rapid successive calls should not interfere with each other
-      const results = codes.map(code => highlight(code));
-      
-      expect(results[0]).toContain('<span class=\"token keyword\">const</span>');
+      const results = codes.map((code) => highlight(code));
+
+      expect(results[0]).toContain(
+        '<span class=\"token keyword\">const</span>'
+      );
       expect(results[1]).toContain('<span class=\"token tag\">');
-      expect(results[2]).toContain('<span class=\"token keyword\">function</span>');
-      expect(results[3]).toContain('<span class=\"token keyword\">alert</span>');
+      expect(results[2]).toContain(
+        '<span class=\"token keyword\">function</span>'
+      );
+      expect(results[3]).toContain(
+        '<span class=\"token keyword\">alert</span>'
+      );
     });
   });
 
@@ -227,15 +245,18 @@ describe('Public API - Production Ready Behavior', () => {
     it('should handle very long lines', () => {
       const longLine = 'const x = \"' + 'a'.repeat(10000) + '\";';
       const result = highlight(longLine, { language: 'js' });
-      
+
       expect(result).toContain('<span class=\"token keyword\">const</span>');
       expect(result).toContain('<span class=\"token string\">');
     });
 
     it('should handle deeply nested structures', () => {
-      const nested = '<div><span><a><em><strong>' + 'text' + '</strong></em></a></span></div>';
+      const nested =
+        '<div><span><a><em><strong>' +
+        'text' +
+        '</strong></em></a></span></div>';
       const result = highlight(nested, { language: 'html' });
-      
+
       expect(result).toContain('<span class=\"token tag\">');
     });
 
@@ -255,9 +276,9 @@ describe('Public API - Production Ready Behavior', () => {
           </body>
         </html>
       `;
-      
+
       const result = highlight(mixed, { language: 'html' });
-      
+
       // Should handle both HTML and JavaScript
       expect(result).toContain('<span class=\"token tag\">');
       expect(result).toContain('<span class=\"token keyword\">const</span>');
@@ -267,11 +288,11 @@ describe('Public API - Production Ready Behavior', () => {
     it('should handle Unicode and special characters', () => {
       const unicode = 'const 🚀 = \"Hello 世界\"; // Comment with émojis 🎉';
       const result = highlight(unicode, { language: 'js' });
-      
+
       expect(result).toContain('<span class=\"token keyword\">const</span>');
       expect(result).toContain('<span class=\"token string\">');
       expect(result).toContain('<span class=\"token comment\">');
-      
+
       // Unicode should be preserved
       expect(result).toContain('🚀');
       expect(result).toContain('世界');
@@ -287,9 +308,9 @@ describe('Public API - Production Ready Behavior', () => {
         'function() { if() { while() {',
       ];
 
-      malformedCodes.forEach(code => {
+      malformedCodes.forEach((code) => {
         const result = highlight(code);
-        
+
         // Should not throw and should return some reasonable output
         expect(typeof result).toBe('string');
         expect(result.length).toBeGreaterThan(0);
@@ -301,19 +322,19 @@ describe('Public API - Production Ready Behavior', () => {
     it('should accept properly typed options', () => {
       const code = 'const x = 42;';
       const options: HighlightOptions = { language: 'js' };
-      
+
       const result = highlight(code, options);
       expect(result).toContain('<span class=\"token keyword\">const</span>');
     });
 
     it('should work with optional options parameter', () => {
       const code = 'const x = 42;';
-      
+
       // Both of these should compile and work
       const result1 = highlight(code);
       const result2 = highlight(code, {});
       const result3 = highlight(code, { language: 'js' });
-      
+
       expect(result1).toContain('<span class=\"token keyword\">const</span>');
       expect(result2).toContain('<span class=\"token keyword\">const</span>');
       expect(result3).toContain('<span class=\"token keyword\">const</span>');

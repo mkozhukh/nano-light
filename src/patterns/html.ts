@@ -26,17 +26,17 @@ export const htmlPatterns: LanguagePattern[] = [
     type: 'comment',
   },
 
-  // Attribute values (quoted strings) - enhanced to handle escaped quotes
-  // These must come before tags to ensure proper attribute parsing within tags
+  // Attribute values (quoted strings) - enhanced to handle nested quotes
+  // Double quotes have higher priority to capture full attribute values
   {
-    name: 'attr-value-single',
-    regex: /'(?:[^'\\]|\\.)*'/g,
+    name: 'attr-value-double',
+    regex: /"(?:[^"\\]|\\.)*"/g,
     type: 'attr-value',
   },
 
   {
-    name: 'attr-value-double',
-    regex: /"(?:[^"\\]|\\.)*"/g,
+    name: 'attr-value-single',
+    regex: /'(?:[^'\\]|\\.)*'/g,
     type: 'attr-value',
   },
 

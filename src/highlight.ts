@@ -36,8 +36,12 @@ function getCompiledPatterns(): CompiledPatterns {
       for (const pattern of patterns) {
         const cacheKey = `${language}-${pattern.name}`;
         if (!regexCache.has(cacheKey)) {
-          // Create a new RegExp with global flag to ensure proper matching
-          regexCache.set(cacheKey, new RegExp(pattern.regex.source, 'g'));
+          // Preserve original flags, ensuring 'g' flag is included
+          const originalFlags = pattern.regex.flags;
+          const flags = originalFlags.includes('g')
+            ? originalFlags
+            : originalFlags + 'g';
+          regexCache.set(cacheKey, new RegExp(pattern.regex.source, flags));
         }
       }
     }
@@ -65,7 +69,12 @@ function getCachedRegex(language: Language, patternName: string): RegExp {
   const patterns = getCompiledPatterns()[language];
   const pattern = patterns.find((p) => p.name === patternName);
   if (pattern) {
-    const regex = new RegExp(pattern.regex.source, 'g');
+    // Preserve original flags, ensuring 'g' flag is included
+    const originalFlags = pattern.regex.flags;
+    const flags = originalFlags.includes('g')
+      ? originalFlags
+      : originalFlags + 'g';
+    const regex = new RegExp(pattern.regex.source, flags);
     regexCache.set(cacheKey, regex);
     return regex;
   }
@@ -331,28 +340,28 @@ function tokensToHtml(code: string, tokens: Token[]): string {
 
 /**
  * Highlight source code with syntax highlighting for JavaScript and HTML.
- * 
+ *
  * This function provides robust syntax highlighting with automatic language detection.
  * It never throws exceptions and gracefully handles malformed input by returning
  * the original escaped code on any failure.
- * 
+ *
  * @example
  * ```typescript
  * // Auto-detect language
  * const highlighted = highlight('function test() { return "hello"; }');
- * 
+ *
  * // Force specific language
  * const htmlHighlighted = highlight('<div>Hello</div>', { language: 'html' });
  * ```
- * 
+ *
  * @param code - Source code to highlight. Must be a string.
  * @param options - Optional highlighting configuration
- * @param options.language - Force specific language detection ('js' | 'html'). 
+ * @param options.language - Force specific language detection ('js' | 'html').
  *                          If not provided, language will be auto-detected.
  * @returns HTML string with syntax highlighting wrapped in <span> elements with CSS classes.
  *          Returns empty string for null/undefined input.
  *          Returns escaped original code on any processing errors.
- * 
+ *
  * @public
  */
 export function highlight(
@@ -364,12 +373,12 @@ export function highlight(
     if (code === null || code === undefined) {
       return '';
     }
-    
+
     // Convert non-string input to string (for robustness)
     if (typeof code !== 'string') {
       code = String(code);
     }
-    
+
     // Handle empty string case
     if (code === '') {
       return '';
@@ -377,11 +386,13 @@ export function highlight(
 
     // Validate and normalize options
     let language: Language;
-    
+
     // Validate language option if provided
-    if (options?.language && 
-        options.language !== 'js' && 
-        options.language !== 'html') {
+    if (
+      options?.language &&
+      options.language !== 'js' &&
+      options.language !== 'html'
+    ) {
       // Invalid language - fall back to auto-detection
       language = detectLanguage(code);
     } else {
