@@ -19,34 +19,35 @@ export const scriptContentPatterns = {
  * Phase 4: Enhanced patterns with better edge case handling
  */
 export const htmlPatterns: LanguagePattern[] = [
-  // HTML comments - enhanced to handle edge cases
+  // HTML comments - enhanced to handle edge cases (highest priority)
   {
     name: 'html-comment',
     regex: /<!--[\s\S]*?-->/g,
     type: 'comment',
   },
 
-  // Attribute values (quoted strings) - must come before tags to be recognized
-  {
-    name: 'attr-value-double',
-    regex: /"[^"]*"/g,
-    type: 'attr-value',
-  },
-
+  // Attribute values (quoted strings) - enhanced to handle escaped quotes
+  // These must come before tags to ensure proper attribute parsing within tags
   {
     name: 'attr-value-single',
-    regex: /'[^']*'/g,
+    regex: /'(?:[^'\\]|\\.)*'/g,
     type: 'attr-value',
   },
 
-  // Attribute names - must come before tags
+  {
+    name: 'attr-value-double',
+    regex: /"(?:[^"\\]|\\.)*"/g,
+    type: 'attr-value',
+  },
+
+  // Attribute names - must come before tags but after attribute values
   {
     name: 'attr-name',
     regex: /\b[a-zA-Z][a-zA-Z0-9:_-]*(?=\s*=)/g,
     type: 'attr-name',
   },
 
-  // Script tags (opening and closing)
+  // Script tags (opening and closing) - handle these specially
   {
     name: 'script-tag-open',
     regex: /<script\b[^>]*>/gi,

@@ -48,11 +48,11 @@ export const javascriptPatterns: LanguagePattern[] = [
     type: 'number',
   },
 
-  // Keywords - comprehensive set including ES6+ features and built-ins
+  // Keywords - comprehensive set including ES6+ features and common built-ins
   {
     name: 'keyword',
     regex:
-      /\b(?:abstract|arguments|async|await|boolean|break|byte|case|catch|char|class|const|continue|debugger|default|delete|do|double|else|enum|eval|export|extends|false|final|finally|float|for|function|goto|if|implements|import|in|instanceof|int|interface|let|long|native|new|null|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|true|try|typeof|undefined|var|void|volatile|while|with|yield)\b/g,
+      /\b(?:abstract|alert|arguments|async|await|boolean|break|byte|case|catch|char|class|console|const|continue|debugger|default|delete|do|document|double|else|enum|eval|export|extends|false|final|finally|float|for|function|goto|if|implements|import|in|instanceof|int|interface|let|long|native|new|null|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|true|try|typeof|undefined|var|void|volatile|while|with|yield)\b/g,
     type: 'keyword',
   },
 

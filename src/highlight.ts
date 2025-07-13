@@ -99,7 +99,7 @@ function tokenizeHtml(code: string): Token[] {
   let scriptMatch: RegExpExecArray | null;
   while ((scriptMatch = scriptContentRegex.exec(code)) !== null) {
     const fullMatch = scriptMatch[0];
-    const content = scriptMatch[1];
+    const content = scriptMatch[1] || '';
     const matchStart = scriptMatch.index;
     const matchEnd = matchStart + fullMatch.length;
 
@@ -131,7 +131,7 @@ function tokenizeHtml(code: string): Token[] {
     }
   }
 
-  // Step 2: Process HTML patterns (comments, script tags, and other HTML tags)
+  // Step 2: Process HTML patterns in priority order
   for (const pattern of htmlPatterns) {
     const regex = new RegExp(pattern.regex.source, pattern.regex.flags);
     let match: RegExpExecArray | null;
@@ -143,6 +143,7 @@ function tokenizeHtml(code: string): Token[] {
       // Skip if this range overlaps with script content (except for script tags themselves)
       let inScriptContent = false;
       for (const scriptArea of scriptAreas) {
+        // Allow script tags themselves to be processed, but not content inside them
         if (start >= scriptArea.openTagEnd && end <= scriptArea.closeTagStart) {
           inScriptContent = true;
           break;
@@ -329,31 +330,76 @@ function tokensToHtml(code: string, tokens: Token[]): string {
 }
 
 /**
- * Highlight source code with syntax highlighting
- * @param code - Source code to highlight
- * @param options - Highlighting options
- * @returns HTML string with syntax highlighting
+ * Highlight source code with syntax highlighting for JavaScript and HTML.
+ * 
+ * This function provides robust syntax highlighting with automatic language detection.
+ * It never throws exceptions and gracefully handles malformed input by returning
+ * the original escaped code on any failure.
+ * 
+ * @example
+ * ```typescript
+ * // Auto-detect language
+ * const highlighted = highlight('function test() { return "hello"; }');
+ * 
+ * // Force specific language
+ * const htmlHighlighted = highlight('<div>Hello</div>', { language: 'html' });
+ * ```
+ * 
+ * @param code - Source code to highlight. Must be a string.
+ * @param options - Optional highlighting configuration
+ * @param options.language - Force specific language detection ('js' | 'html'). 
+ *                          If not provided, language will be auto-detected.
+ * @returns HTML string with syntax highlighting wrapped in <span> elements with CSS classes.
+ *          Returns empty string for null/undefined input.
+ *          Returns escaped original code on any processing errors.
+ * 
+ * @public
  */
 export function highlight(
   code: string,
   options: HighlightOptions = {}
 ): string {
   try {
-    // Handle empty or invalid input
-    if (!code || typeof code !== 'string') {
+    // Robust input validation
+    if (code === null || code === undefined) {
+      return '';
+    }
+    
+    // Convert non-string input to string (for robustness)
+    if (typeof code !== 'string') {
+      code = String(code);
+    }
+    
+    // Handle empty string case
+    if (code === '') {
       return '';
     }
 
-    // Determine language
-    const language = options.language || detectLanguage(code);
+    // Validate and normalize options
+    let language: Language;
+    
+    // Validate language option if provided
+    if (options?.language && 
+        options.language !== 'js' && 
+        options.language !== 'html') {
+      // Invalid language - fall back to auto-detection
+      language = detectLanguage(code);
+    } else {
+      // Use provided language or auto-detect
+      language = options?.language || detectLanguage(code);
+    }
 
-    // Tokenize the code
+    // Tokenize the code with error boundary
     const tokens = tokenize(code, language);
 
-    // Convert to highlighted HTML
+    // Convert to highlighted HTML with error boundary
     return tokensToHtml(code, tokens);
   } catch (error) {
-    // Never throw - return original code on any error
-    return escapeHtml(code);
+    // Never throw - return escaped original code on any error
+    // This ensures the function is completely safe to use
+    if (typeof code === 'string') {
+      return escapeHtml(code);
+    }
+    return '';
   }
 }
