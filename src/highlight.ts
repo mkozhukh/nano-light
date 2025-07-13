@@ -10,11 +10,19 @@ import { htmlPatterns } from './patterns/html';
 
 /**
  * Cached compiled patterns to avoid recompilation
+ * The patterns are pre-compiled and cached for optimal performance
  */
 let compiledPatterns: CompiledPatterns | null = null;
 
 /**
- * Get compiled patterns with caching
+ * Cache for compiled regex patterns to avoid recreating RegExp objects
+ * Key format: `${language}-${patternName}`
+ */
+const regexCache = new Map<string, RegExp>();
+
+/**
+ * Get compiled patterns with lazy initialization and caching
+ * This ensures patterns are only compiled once and reused across calls
  */
 function getCompiledPatterns(): CompiledPatterns {
   if (!compiledPatterns) {
@@ -22,12 +30,51 @@ function getCompiledPatterns(): CompiledPatterns {
       js: javascriptPatterns,
       html: htmlPatterns,
     };
+
+    // Pre-compile and cache regex patterns for better performance
+    for (const [language, patterns] of Object.entries(compiledPatterns)) {
+      for (const pattern of patterns) {
+        const cacheKey = `${language}-${pattern.name}`;
+        if (!regexCache.has(cacheKey)) {
+          // Create a new RegExp with global flag to ensure proper matching
+          regexCache.set(cacheKey, new RegExp(pattern.regex.source, 'g'));
+        }
+      }
+    }
   }
   return compiledPatterns;
 }
 
 /**
- * Tokenize code using language-specific patterns
+ * Get a cached regex pattern for optimal performance
+ * @param language - Target language
+ * @param patternName - Name of the pattern
+ * @returns Cached RegExp object
+ */
+function getCachedRegex(language: Language, patternName: string): RegExp {
+  const cacheKey = `${language}-${patternName}`;
+  const cached = regexCache.get(cacheKey);
+
+  if (cached) {
+    // Reset lastIndex to ensure consistent behavior
+    cached.lastIndex = 0;
+    return cached;
+  }
+
+  // Fallback: create new regex if not found in cache
+  const patterns = getCompiledPatterns()[language];
+  const pattern = patterns.find((p) => p.name === patternName);
+  if (pattern) {
+    const regex = new RegExp(pattern.regex.source, 'g');
+    regexCache.set(cacheKey, regex);
+    return regex;
+  }
+
+  throw new Error(`Pattern not found: ${language}-${patternName}`);
+}
+
+/**
+ * Tokenize code using language-specific patterns with optimized caching
  * @param code - Source code to tokenize
  * @param language - Language to use for tokenization
  * @returns Array of tokens with position information
@@ -38,9 +85,9 @@ function tokenize(code: string, language: Language): Token[] {
   const tokens: Token[] = [];
   const processed = new Set<number>();
 
-  // Process each pattern
+  // Process each pattern using cached regex objects
   for (const pattern of languagePatterns) {
-    const regex = new RegExp(pattern.regex.source, pattern.regex.flags);
+    const regex = getCachedRegex(language, pattern.name);
     let match: RegExpExecArray | null;
 
     while ((match = regex.exec(code)) !== null) {
@@ -70,14 +117,14 @@ function tokenize(code: string, language: Language): Token[] {
         }
       }
 
-      // Prevent infinite loops
+      // Prevent infinite loops on zero-length matches
       if (regex.lastIndex === start) {
         regex.lastIndex++;
       }
     }
   }
 
-  // Sort tokens by start position
+  // Sort tokens by start position for proper rendering order
   return tokens.sort((a, b) => a.start - b.start);
 }
 
