@@ -8,28 +8,49 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
-    }
+      "require": "./dist/index.cjs"
+    },
+    "./themes/light.css": "./themes/light.css",
+    "./themes/dark.css": "./themes/dark.css"
   },
-  "files": ["dist"],
+  "files": [
+    "dist",
+    "themes"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
-  "keywords": ["highlight", "syntax", "code", "minimal"],
+  "keywords": [
+    "highlight",
+    "syntax",
+    "code",
+    "minimal"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^24.0.13",
     "@vitest/ui": "^3.2.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.2",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,md}": [
+      "prettier --write"
+    ]
   }
 }

@@ -1,0 +1,61 @@
+/**
+ * Highlight-nano Dark Theme
+ * A sleek dark theme with good contrast for code highlighting
+ */
+
+/* Base styles for highlighted code containers */
+.highlight-code {
+  font-family:
+    'Courier New', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  background-color: #0d1117;
+  color: #c9d1d9;
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+/* JavaScript token styles */
+.token.keyword {
+  color: #ff7b72;
+  font-weight: 600;
+}
+
+.token.string {
+  color: #a5d6ff;
+}
+
+.token.number {
+  color: #79c0ff;
+}
+
+.token.comment {
+  color: #8b949e;
+  font-style: italic;
+}
+
+.token.operator {
+  color: #ff7b72;
+}
+
+/* HTML token styles */
+.token.tag {
+  color: #7ee787;
+}
+
+.token.attr-name {
+  color: #ffa657;
+}
+
+.token.attr-value {
+  color: #a5d6ff;
+}
+
+/* Optional: Subtle background for inline code */
+.highlight-code.inline {
+  display: inline;
+  padding: 2px 4px;
+  background-color: rgba(240, 246, 252, 0.1);
+  border-radius: 3px;
+}
