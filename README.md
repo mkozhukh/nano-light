@@ -13,17 +13,17 @@ A minimal, zero-dependency code syntax highlighting library that supports JavaSc
 ## Installation
 
 ```bash
-npm install nano-light
+npm install @teamlor/nano-light
 ```
 
 ```bash
-yarn add nano-light
+yarn add @teamlor/nano-light
 ```
 
 ## Quick Start
 
 ```javascript
-import { highlight } from 'nano-light';
+import { highlight } from '@teamlor/nano-light';
 
 // Auto-detect language
 const jsCode = highlight('function test() { return "hello"; }');

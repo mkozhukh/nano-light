@@ -1,5 +1,5 @@
 {
-  "name": "nano-light",
+  "name": "@teamlor/nano-light",
   "version": "1.0.0",
   "description": "minimal code highlighter",
   "type": "module",
