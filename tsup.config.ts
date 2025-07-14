@@ -2,16 +2,15 @@ import { defineConfig } from 'tsup';
 
 export default defineConfig({
   entry: ['src/index.ts'],
-  format: ['cjs', 'esm', 'iife'],
+  format: ['cjs', 'esm'],
   dts: true,
   clean: true,
   splitting: false,
   sourcemap: true,
   minify: true,
-  globalName: 'HighlightNano',
   outExtension({ format }) {
     return {
-      js: format === 'iife' ? '.umd.js' : format === 'cjs' ? '.cjs' : '.js',
+      js: format === 'cjs' ? '.cjs' : '.js',
     };
   },
   esbuildOptions(options) {

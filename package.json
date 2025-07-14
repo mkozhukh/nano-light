@@ -1,5 +1,5 @@
 {
-  "name": "hightlight-nano",
+  "name": "nano-light",
   "version": "1.0.0",
   "description": "minimal code highlighter",
   "type": "module",
@@ -36,7 +36,7 @@
     "code",
     "minimal"
   ],
-  "author": "",
+  "author": "Maksim Kozhukh <mk@mono.ink>",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^24.0.13",

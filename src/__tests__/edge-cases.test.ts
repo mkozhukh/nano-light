@@ -1,14 +1,14 @@
 /**
- * Phase 7: Comprehensive Test Coverage
+ * Edge Cases and Advanced Test Coverage
  *
- * Additional tests to ensure 100% coverage of all features, edge cases,
- * performance, integration, and security aspects as specified in Phase 7.
+ * Comprehensive tests for edge cases, performance scenarios,
+ * security considerations, and real-world code examples.
  */
 
 import { it, expect, describe } from 'vitest';
 import { highlight } from '../highlight';
 
-describe('Phase 7: Comprehensive Test Coverage', () => {
+describe('Edge Cases and Advanced Features', () => {
   describe('Language Detection Edge Cases', () => {
     it('should detect HTML with CDATA sections', () => {
       const code = '<![CDATA[some data]]>';

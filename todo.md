@@ -1,4 +1,4 @@
-# Highlight-Nano Implementation Plan
+# Nanolight Implementation Plan
 
 ## Phase 1: Project Setup
 

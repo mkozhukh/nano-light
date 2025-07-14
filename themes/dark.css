@@ -1,5 +1,5 @@
 /**
- * Highlight-nano Dark Theme
+ * Nanolight Dark Theme
  * Phase 6 specification-compliant dark theme with proper contrast
  * 
  * Color Design Philosophy:
@@ -12,9 +12,25 @@
 
 /* Base styles for highlighted code containers */
 .highlight-code {
-  font-family: 'Courier New', monospace;
+  font-family: 
+    /* Windows fonts */
+    'Consolas',
+    /* Cross-platform fonts */ 'Fira Code',
+    'Fira Mono',
+    /* JetBrains Mono - excellent for all platforms */ 'JetBrains Mono',
+    /* macOS/iOS fonts */ 'SF Mono',
+    'Monaco',
+    /* Linux fonts */ 'Ubuntu Mono',
+    'Droid Sans Mono',
+    /* Classic fallbacks */ 'Courier New',
+    'Courier',
+    /* Generic fallback */ monospace;
   font-size: 14px;
   line-height: 1.4;
+  /* Optimize font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-ligatures: contextual;
   background-color: #0d1117;
   color: #c9d1d9;
   padding: 16px;

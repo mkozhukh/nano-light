@@ -1,4 +1,4 @@
-# hightlight-nano
+# nano-light
 
 A minimal, zero-dependency code syntax highlighting library that supports JavaScript and HTML with automatic language detection. Optimized for size at just 1.53KB gzipped.
 
@@ -7,30 +7,23 @@ A minimal, zero-dependency code syntax highlighting library that supports JavaSc
 - 🚀 **Ultra-small bundle**: 1.53KB gzipped (ESM), 1.79KB (UMD)
 - 🔍 **Automatic language detection**: Smart detection for JavaScript and HTML
 - 🎯 **Script tag context switching**: Highlights JavaScript inside HTML `<script>` tags
-- 🛡️ **Robust error handling**: Never throws exceptions, gracefully handles malformed input
 - 🎨 **CSS themes included**: Light and dark themes provided
-- 📦 **Multiple formats**: ESM, CommonJS, and UMD builds
-- 💪 **TypeScript support**: Full type definitions included
 - ⚡ **Zero dependencies**: No external runtime dependencies
 
 ## Installation
 
 ```bash
-npm install hightlight-nano
+npm install nano-light
 ```
 
 ```bash
-yarn add hightlight-nano
-```
-
-```bash
-pnpm add hightlight-nano
+yarn add nano-light
 ```
 
 ## Quick Start
 
 ```javascript
-import { highlight } from 'hightlight-nano';
+import { highlight } from 'nano-light';
 
 // Auto-detect language
 const jsCode = highlight('function test() { return "hello"; }');
@@ -59,7 +52,7 @@ Highlights source code with syntax highlighting for JavaScript and HTML.
 
 #### Examples
 
-```javascript
+````javascript
 // Basic usage with auto-detection
 const highlighted = highlight('const name = "world";');
 
@@ -69,23 +62,6 @@ const jsHighlighted = highlight('const x = 42;', { language: 'js' });
 // Force HTML highlighting
 const htmlHighlighted = highlight('<div>Hello</div>', { language: 'html' });
 
-// Complex HTML with JavaScript
-const complexHtml = highlight(`
-<html>
-  <head>
-    <script>
-      function greet() {
-        console.log("Hello World!");
-      }
-    </script>
-  </head>
-  <body>
-    <div onclick="greet()">Click me</div>
-  </body>
-</html>
-`);
-```
-
 ## CSS Theme Usage
 
 Include one of the provided CSS themes in your HTML:
@@ -93,13 +69,13 @@ Include one of the provided CSS themes in your HTML:
 ### Light Theme
 
 ```html
-<link rel="stylesheet" href="node_modules/hightlight-nano/themes/light.css" />
-```
+<link rel="stylesheet" href="node_modules/nanolight/themes/light.css" />
+````
 
 ### Dark Theme
 
 ```html
-<link rel="stylesheet" href="node_modules/hightlight-nano/themes/dark.css" />
+<link rel="stylesheet" href="node_modules/nanolight/themes/dark.css" />
 ```
 
 ### Custom Themes
@@ -147,7 +123,7 @@ import {
   Language,
   Token,
   TokenType,
-} from 'hightlight-nano';
+} from 'nanolight';
 
 const options: HighlightOptions = { language: 'js' };
 const result: string = highlight('const x = 42;', options);
@@ -198,49 +174,19 @@ interface HighlightOptions {
 
 ## Browser Compatibility
 
-Works in all modern browsers that support:
-
-- ES2015+ features
-- Regular expressions with Unicode support
-
-**Minimum browser versions:**
-
-- Chrome 51+
-- Firefox 54+
-- Safari 10+
-- Edge 79+
-
-For older browsers, use a transpilation tool like Babel.
+Works in all modern browsers
 
 ## Bundle Formats
 
 The library is available in multiple formats:
 
-- **ESM** (`dist/index.js`): 3.20KB minified, 1.53KB gzipped
-- **CommonJS** (`dist/index.cjs`): 3.56KB minified, 1.73KB gzipped
-- **UMD** (`dist/index.umd.js`): 3.67KB minified, 1.79KB gzipped
-
-## Performance
-
-The library is optimized for performance:
-
-- Regex patterns are cached and reused
-- Single-pass tokenization algorithm
-- Minimal DOM manipulation
-- Efficient memory usage
+- **ESM** (`dist/index.js`): 2.70KB minified, 1.35KB gzipped
+- **CommonJS** (`dist/index.cjs`): 3.06KB minified, 1.48KB gzipped (estimated)
+- **UMD** (`dist/index.umd.js`): 3.16KB minified, 1.60KB gzipped
 
 ## Error Handling
 
 The library is designed to never throw exceptions:
-
-```javascript
-// All of these are safe and will not throw
-highlight(null); // Returns ''
-highlight(undefined); // Returns ''
-highlight(''); // Returns ''
-highlight(123); // Converts to string and highlights
-highlight(malformedCode); // Returns escaped original code
-```
 
 ## License
 

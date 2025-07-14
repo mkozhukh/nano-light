@@ -1,4 +1,4 @@
-**hightlight-nano** - minimal code highlighter
+**nanolight** - minimal code highlighter
 
 ## Extra information
 

@@ -165,20 +165,20 @@ codeElement.classList.add('highlight-code');
 ## File Structure
 
 ```
-highlight-mini/
 ├── src/
+│   ├── __tests__/             # Comprehensive test suite
 │   ├── highlight.js          # Main library
+│   ├── types.ts            # Type definitions
+│   ├── utils.ts            # Utilities
 │   ├── patterns/
-│   │   ├── javascript.js     # JS regex patterns
-│   │   └── html.js           # HTML regex patterns
-│   └── utils.js              # Helper functions
+│   │   ├── javascript.ts   # JS patterns
+│   │   └── html.ts         # HTML patterns
+│   └── index.ts            # Main export
 ├── themes/
 │   ├── light.css            # Light theme
 │   └── dark.css             # Dark theme
 ├── dist/
-│   ├── highlight.min.js     # Minified library
-│   └── highlight.min.js.map # Source map
-└── package.json
+├── dist/                  # Multiple build formats
 ```
 
 ## Error Handling
@@ -344,50 +344,13 @@ Comprehensive test suite with 127 tests covering:
 3. **Conflict Resolution**: Processed character tracking prevents overlapping tokens
 4. **Memory Efficiency**: Minimal object allocation during tokenization
 
-## Deviations from Specification
+### Feature Trade-offs
 
-### Minor Enhancements
+To achieve the 55% size reduction below target, some advanced features were simplified:
 
-1. **TypeScript Support**: Added full TypeScript definitions (not in original spec)
-2. **Multiple Build Formats**: ESM, CommonJS, and UMD (spec only mentioned one minified file)
-3. **Source Maps**: Added for debugging support
-4. **Enhanced Error Handling**: More robust than specified
-5. **BigInt Support**: Added modern JavaScript BigInt number support
-
-### Simplifications
-
-1. **Division Operator**: Temporarily removed `/` operator to avoid conflicts with comments
-2. **Complex Nested Quotes**: Some edge cases in HTML attributes are not handled perfectly
-3. **CSS Class Names**: Used `token` as base class instead of `highlight-code` wrapper
-
-### File Structure Changes
-
-```
-hightlight-nano/
-├── src/
-│   ├── highlight.ts         # Main highlighter (TypeScript)
-│   ├── types.ts            # Type definitions
-│   ├── utils.ts            # Utilities
-│   ├── patterns/
-│   │   ├── javascript.ts   # JS patterns
-│   │   └── html.ts         # HTML patterns
-│   └── index.ts            # Main export
-├── themes/
-│   ├── light.css          # Light theme
-│   └── dark.css           # Dark theme
-├── dist/                  # Multiple build formats
-└── __tests__/             # Comprehensive test suite
-```
-
-## Success Metrics
-
-- ✅ **Size Target**: 1.53KB gzipped (49% under 3KB target)
-- ✅ **Zero Dependencies**: No external runtime dependencies
-- ✅ **Language Support**: Full JavaScript and HTML support
-- ✅ **Script Tag Switching**: Complex mixed content highlighting
-- ✅ **Error Handling**: Never throws exceptions
-- ✅ **Browser Compatibility**: Works in all modern browsers
-- ✅ **TypeScript Support**: Full type definitions and inference
-- ✅ **Test Coverage**: 100% test pass rate with comprehensive coverage
-
-The implementation successfully exceeds the original specification requirements while maintaining the core goal of minimal size and excellent performance.
+- **Script tag handling**: Basic HTML tokenization (simplified from complex context switching)
+- **Keyword set**: Essential JavaScript keywords only (43 → ~30 most common)
+- **Template literal parsing**: Simplified to reduce regex complexity
+- **Pattern caching**: Removed complex caching for direct pattern access
+- **Division Operator**: Temporarily removed `/` operator to avoid conflicts with comments
+- **Complex Nested Quotes**: Some edge cases in HTML attributes are not handled perfectly
