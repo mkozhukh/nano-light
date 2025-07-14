@@ -19,48 +19,46 @@ export const javascriptPatterns: LanguagePattern[] = [
     type: 'comment',
   },
 
-  // Template literals - enhanced to handle escape sequences and expressions
+  // Template literals - proper expression support
   {
     name: 'template-literal',
-    regex: /`(?:[^`\\$]|\\.|\\[\r\n]|\$(?!\{)|(?:\$\{(?:[^{}\\]|\\.)*\}))*`/g,
+    regex: /`(?:[^`\\$]|\\.|\$(?!\{)|\$\{[^}]*\})*`/g,
     type: 'string',
   },
 
-  // Double-quoted strings - enhanced escape sequence handling
+  // String literals - separate patterns for better matching
   {
-    name: 'double-quoted-string',
-    regex: /"(?:[^"\\]|\\.|\\[\r\n])*"/g,
+    name: 'double-string',
+    regex: /"(?:[^"\\]|\\[\s\S])*"/g,
     type: 'string',
   },
-
-  // Single-quoted strings - enhanced escape sequence handling
   {
-    name: 'single-quoted-string',
-    regex: /'(?:[^'\\]|\\.|\\[\r\n])*'/g,
+    name: 'single-string',
+    regex: /'(?:[^'\\]|\\[\s\S])*'/g,
     type: 'string',
   },
 
-  // Numbers - comprehensive support for all JavaScript numeric literals
+  // Numbers - including BigInt support
   {
     name: 'number',
     regex:
-      /\b(?:0[xX][0-9a-fA-F]+[nN]?|0[bB][01]+[nN]?|0[oO][0-7]+[nN]?|\d+[nN]|(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?[nN]?)\b/g,
+      /\b(?:0[xX][\da-fA-F]+[nN]?|0[bB][01]+[nN]?|0[oO][0-7]+[nN]?|\d+[nN]|\d*\.?\d+(?:[eE][+-]?\d+)?)\b/g,
     type: 'number',
   },
 
-  // Keywords - comprehensive set including ES6+ features and common built-ins
+  // Keywords - essential JavaScript keywords
   {
     name: 'keyword',
     regex:
-      /\b(?:abstract|alert|arguments|async|await|boolean|break|byte|case|catch|char|class|console|const|continue|debugger|default|delete|do|document|double|else|enum|eval|export|extends|false|final|finally|float|for|function|goto|if|implements|import|in|instanceof|int|interface|let|long|native|new|null|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|true|try|typeof|undefined|var|void|volatile|while|with|yield)\b/g,
+      /\b(?:alert|arguments|async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|eval|export|extends|false|finally|for|function|if|import|in|instanceof|let|new|null|return|static|super|switch|this|throw|true|try|typeof|undefined|var|void|while|with|yield)\b/g,
     type: 'keyword',
   },
 
-  // Operators - comprehensive set including assignment, comparison, and logical operators (excluding /)
+  // Operators - essential operators only
   {
     name: 'operator',
     regex:
-      /[+\-*%=!<>&|^~?:@]+|&&|\|\||<<|>>|>>>|\*\*|\.\.\.|\?\?|\?\?\=|\|\|\=|&&\=|\+\+|--|=>|==|!=|===|!==|<=|>=|\+=|-=|\*=|%=|\*\*=|<<=|>>=|>>>=|&=|\|=|\^=/g,
+      /[+\-*%=!<>&|^~?:]+|&&|\|\||\*\*|\.\.\.|\?\?|\+\+|--|=>|==|!=|===|!==|<=|>=|\+=|-=|\*=|\?\?=/g,
     type: 'operator',
   },
 

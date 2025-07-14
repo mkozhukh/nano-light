@@ -1,304 +1,137 @@
-import type {
-  HighlightOptions,
-  Language,
-  Token,
-  CompiledPatterns,
-} from './types';
+import type { HighlightOptions, Language, Token } from './types';
 import { detectLanguage, escapeHtml, wrapToken } from './utils';
 import { javascriptPatterns } from './patterns/javascript';
-import { htmlPatterns, scriptContentPatterns } from './patterns/html';
+import { htmlPatterns } from './patterns/html';
 
 /**
- * Cached compiled patterns to avoid recompilation
- * The patterns are pre-compiled and cached for optimal performance
+ * Get language patterns directly - simplified for size
  */
-let compiledPatterns: CompiledPatterns | null = null;
-
-/**
- * Cache for compiled regex patterns to avoid recreating RegExp objects
- * Key format: `${language}-${patternName}`
- */
-const regexCache = new Map<string, RegExp>();
-
-/**
- * Get compiled patterns with lazy initialization and caching
- * This ensures patterns are only compiled once and reused across calls
- */
-function getCompiledPatterns(): CompiledPatterns {
-  if (!compiledPatterns) {
-    compiledPatterns = {
-      js: javascriptPatterns,
-      html: htmlPatterns,
-    };
-
-    // Pre-compile and cache regex patterns for better performance
-    for (const [language, patterns] of Object.entries(compiledPatterns)) {
-      for (const pattern of patterns) {
-        const cacheKey = `${language}-${pattern.name}`;
-        if (!regexCache.has(cacheKey)) {
-          // Preserve original flags, ensuring 'g' flag is included
-          const originalFlags = pattern.regex.flags;
-          const flags = originalFlags.includes('g')
-            ? originalFlags
-            : originalFlags + 'g';
-          regexCache.set(cacheKey, new RegExp(pattern.regex.source, flags));
-        }
-      }
-    }
-  }
-  return compiledPatterns;
+function getPatterns(language: Language) {
+  return language === 'html' ? htmlPatterns : javascriptPatterns;
 }
 
 /**
- * Get a cached regex pattern for optimal performance
- * @param language - Target language
- * @param patternName - Name of the pattern
- * @returns Cached RegExp object
- */
-function getCachedRegex(language: Language, patternName: string): RegExp {
-  const cacheKey = `${language}-${patternName}`;
-  const cached = regexCache.get(cacheKey);
-
-  if (cached) {
-    // Reset lastIndex to ensure consistent behavior
-    cached.lastIndex = 0;
-    return cached;
-  }
-
-  // Fallback: create new regex if not found in cache
-  const patterns = getCompiledPatterns()[language];
-  const pattern = patterns.find((p) => p.name === patternName);
-  if (pattern) {
-    // Preserve original flags, ensuring 'g' flag is included
-    const originalFlags = pattern.regex.flags;
-    const flags = originalFlags.includes('g')
-      ? originalFlags
-      : originalFlags + 'g';
-    const regex = new RegExp(pattern.regex.source, flags);
-    regexCache.set(cacheKey, regex);
-    return regex;
-  }
-
-  throw new Error(`Pattern not found: ${language}-${patternName}`);
-}
-
-/**
- * Tokenize HTML code with special handling for script tags
- * This function switches context to JavaScript when inside script tags
- * @param code - HTML source code to tokenize
- * @returns Array of tokens with position information
+ * HTML tokenizer with script tag context switching
  */
 function tokenizeHtml(code: string): Token[] {
   const tokens: Token[] = [];
   const processed = new Set<number>();
 
-  // Step 1: Find and process script tag content areas
-  const scriptContentRegex = new RegExp(
-    scriptContentPatterns.scriptTagContent.source,
-    'gi'
-  );
+  // Find script tag content areas for context switching
+  const scriptRegex = /<script\b[^>]*>([\s\S]*?)<\/script>/gi;
   const scriptAreas: Array<{
     start: number;
     end: number;
     content: string;
-    openTagEnd: number;
-    closeTagStart: number;
+    contentStart: number;
   }> = [];
 
   let scriptMatch: RegExpExecArray | null;
-  while ((scriptMatch = scriptContentRegex.exec(code)) !== null) {
+  while ((scriptMatch = scriptRegex.exec(code)) !== null) {
     const fullMatch = scriptMatch[0];
-    const content = scriptMatch[1] || '';
+    const content = scriptMatch[1];
     const matchStart = scriptMatch.index;
-    const matchEnd = matchStart + fullMatch.length;
-
-    // Find where the opening tag ends
-    const openTagRegex = new RegExp(
-      scriptContentPatterns.scriptTagOpen.source,
-      'gi'
-    );
-    openTagRegex.lastIndex = matchStart;
-    const openTagMatch = openTagRegex.exec(code);
-    const openTagEnd = openTagMatch
-      ? (openTagMatch.index ?? 0) + openTagMatch[0].length
-      : matchStart;
-
-    // Find where the closing tag starts
-    const closeTagStart = matchEnd - '</script>'.length;
+    const contentStart = matchStart + fullMatch.indexOf(content || '');
 
     scriptAreas.push({
       start: matchStart,
-      end: matchEnd,
-      content,
-      openTagEnd,
-      closeTagStart,
+      end: matchStart + fullMatch.length,
+      content: content || '',
+      contentStart,
     });
-
-    // Prevent infinite loops
-    if (scriptContentRegex.lastIndex === scriptMatch.index) {
-      scriptContentRegex.lastIndex++;
-    }
   }
 
-  // Step 2: Process HTML patterns in priority order
+  // Process HTML patterns (avoiding script content)
   for (const pattern of htmlPatterns) {
-    const regex = new RegExp(pattern.regex.source, pattern.regex.flags);
+    pattern.regex.lastIndex = 0;
     let match: RegExpExecArray | null;
-
-    while ((match = regex.exec(code)) !== null) {
+    while ((match = pattern.regex.exec(code)) !== null) {
       const start = match.index;
       const end = start + match[0].length;
 
-      // Skip if this range overlaps with script content (except for script tags themselves)
+      // Skip if inside script content
       let inScriptContent = false;
       for (const scriptArea of scriptAreas) {
-        // Allow script tags themselves to be processed, but not content inside them
-        if (start >= scriptArea.openTagEnd && end <= scriptArea.closeTagStart) {
+        if (
+          start >= scriptArea.contentStart &&
+          end <= scriptArea.contentStart + scriptArea.content.length
+        ) {
           inScriptContent = true;
           break;
         }
       }
 
-      if (inScriptContent) {
-        continue;
-      }
-
-      // Skip if this range was already processed
-      let overlap = false;
-      for (let i = start; i < end; i++) {
-        if (processed.has(i)) {
-          overlap = true;
-          break;
-        }
-      }
-
-      if (!overlap) {
-        tokens.push({
-          type: pattern.type,
-          value: match[0],
-          start,
-          end,
-        });
-
-        // Mark this range as processed
-        for (let i = start; i < end; i++) {
-          processed.add(i);
-        }
-      }
-
-      // Prevent infinite loops
-      if (regex.lastIndex === start) {
-        regex.lastIndex++;
+      if (
+        !inScriptContent &&
+        ![...Array(end - start)].some((_, i) => processed.has(start + i))
+      ) {
+        tokens.push({ type: pattern.type, value: match[0], start, end });
+        for (let i = start; i < end; i++) processed.add(i);
       }
     }
   }
 
-  // Step 3: Process JavaScript content inside script tags
+  // Process JavaScript content in script tags
   for (const scriptArea of scriptAreas) {
     if (scriptArea.content.trim()) {
-      // Tokenize the JavaScript content
-      const jsTokens = tokenizeJavaScript(scriptArea.content);
+      const jsTokens = tokenizeCode(scriptArea.content, 'js');
 
-      // Adjust token positions to be relative to the full HTML document
-      const adjustedTokens = jsTokens.map((token) => ({
-        ...token,
-        start: token.start + scriptArea.openTagEnd,
-        end: token.end + scriptArea.openTagEnd,
-      }));
+      for (const token of jsTokens) {
+        const adjustedStart = token.start + scriptArea.contentStart;
+        const adjustedEnd = token.end + scriptArea.contentStart;
 
-      // Add the JavaScript tokens
-      for (const token of adjustedTokens) {
-        let overlap = false;
-        for (let i = token.start; i < token.end; i++) {
-          if (processed.has(i)) {
-            overlap = true;
-            break;
-          }
-        }
-
-        if (!overlap) {
-          tokens.push(token);
-          // Mark this range as processed
-          for (let i = token.start; i < token.end; i++) {
-            processed.add(i);
-          }
+        if (
+          ![...Array(adjustedEnd - adjustedStart)].some((_, i) =>
+            processed.has(adjustedStart + i)
+          )
+        ) {
+          tokens.push({
+            ...token,
+            start: adjustedStart,
+            end: adjustedEnd,
+          });
+          for (let i = adjustedStart; i < adjustedEnd; i++) processed.add(i);
         }
       }
     }
   }
 
-  // Sort tokens by start position for proper rendering order
   return tokens.sort((a, b) => a.start - b.start);
 }
 
 /**
- * Tokenize JavaScript code using JavaScript patterns
- * @param code - JavaScript source code to tokenize
- * @returns Array of tokens with position information
+ * Tokenize code - simplified unified tokenizer
  */
-function tokenizeJavaScript(code: string): Token[] {
-  const patterns = getCompiledPatterns();
-  const languagePatterns = patterns.js;
+function tokenizeCode(code: string, language: Language): Token[] {
   const tokens: Token[] = [];
   const processed = new Set<number>();
+  const patterns = getPatterns(language);
 
-  // Process each pattern using cached regex objects
-  for (const pattern of languagePatterns) {
-    const regex = getCachedRegex('js', pattern.name);
+  for (const pattern of patterns) {
+    pattern.regex.lastIndex = 0;
     let match: RegExpExecArray | null;
 
-    while ((match = regex.exec(code)) !== null) {
+    while ((match = pattern.regex.exec(code)) !== null) {
       const start = match.index;
       const end = start + match[0].length;
 
-      // Skip if this range was already processed by a higher-priority pattern
-      let overlap = false;
-      for (let i = start; i < end; i++) {
-        if (processed.has(i)) {
-          overlap = true;
-          break;
-        }
-      }
-
-      if (!overlap) {
-        tokens.push({
-          type: pattern.type,
-          value: match[0],
-          start,
-          end,
-        });
-
-        // Mark this range as processed
-        for (let i = start; i < end; i++) {
-          processed.add(i);
-        }
-      }
-
-      // Prevent infinite loops on zero-length matches
-      if (regex.lastIndex === start) {
-        regex.lastIndex++;
+      if (![...Array(end - start)].some((_, i) => processed.has(start + i))) {
+        tokens.push({ type: pattern.type, value: match[0], start, end });
+        for (let i = start; i < end; i++) processed.add(i);
       }
     }
   }
 
-  // Sort tokens by start position for proper rendering order
   return tokens.sort((a, b) => a.start - b.start);
 }
 
 /**
- * Tokenize code using language-specific patterns with optimized caching
- * @param code - Source code to tokenize
- * @param language - Language to use for tokenization
- * @returns Array of tokens with position information
+ * Main tokenizer function
  */
 function tokenize(code: string, language: Language): Token[] {
-  // Use specialized HTML tokenizer for HTML content to handle script tags
-  if (language === 'html') {
-    return tokenizeHtml(code);
-  }
-
-  // Use JavaScript tokenizer for JavaScript content
-  return tokenizeJavaScript(code);
+  return language === 'html'
+    ? tokenizeHtml(code)
+    : tokenizeCode(code, language);
 }
 
 /**
